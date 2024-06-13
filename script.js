@@ -1,16 +1,18 @@
+const wrapper = document.querySelector(".wrapper");
 const carousel = document.querySelector(".carousel");
 const arrowBtns = document.querySelectorAll(".wrapper i");
 const firstCardWidth = document.querySelector(".card").offsetWidth;
-// console.log("firstCardWidth", firstCardWidth);
+console.log("arrowBtns", arrowBtns);
 const carouselChildrens = [...carousel.children];
 // console.log(carouselChildrens);
 
 let isDragging = false,
   startX,
-  startScrollLeft;
+  startScrollLeft,
+  timeoutId;
 //   Get the number of cards that can fit in the carousel;
 let CardPerView = Math.round(carousel.offsetWidth / firstCardWidth);
-// console.log("cardPerPage", CardPerView);
+console.log("cardPerPage", CardPerView);
 
 // Insert copy of the last few cards to the begining of the carousel for infinite scrolling
 carouselChildrens
@@ -47,6 +49,13 @@ const dragStop = () => {
   isDragging = false;
   carousel.classList.remove("dragging");
 };
+
+const autoPlay = () => {
+  if (window.innerWidth < 800) return;
+  timeoutId = setTimeout(() => (carousel.scrollLeft += firstCardWidth), 2500);
+};
+autoPlay();
+
 const infiniteScroll = () => {
   // If carousel is at the beginning, scroll to the end;
   if (carousel.scrollLeft === 0) {
@@ -65,9 +74,13 @@ const infiniteScroll = () => {
     // console.log("You've reached to the right end");
     carousel.classList.remove("no-transition");
   }
+  clearTimeout(timeoutId);
+  if (!wrapper.matches(":hover")) autoPlay();
 };
 
 carousel.addEventListener("mousedown", dragStart);
 carousel.addEventListener("mousemove", dragging);
 document.addEventListener("mouseup", dragStop);
 carousel.addEventListener("scroll", infiniteScroll);
+wrapper.addEventListener("mouseenter", () => clearTimeout(timeoutId));
+wrapper.addEventListener("mouseleave", autoPlay);
